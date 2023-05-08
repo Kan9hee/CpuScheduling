@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Function {
+public class SchedulingFunction {
 
 	public List<ProcessData> timeLine;
 
@@ -12,7 +12,7 @@ public class Function {
 	private int currentTime = 0, waitingSum = 0, responseSum = 0, turnaroundSum = 0;
 	private double awt, art, att, highPriority;
 
-	public Function() {
+	public SchedulingFunction() {
 		File processList = new File("dataSet.txt");
 		String readLine;
 		String[] splitData;
@@ -129,8 +129,7 @@ public class Function {
 
 		if (!copyList.isEmpty()) {
 			PriorityQueue<ProcessData> afterList = new PriorityQueue<>(
-					Comparator.comparing(ProcessData::getPriority).thenComparing(ProcessData::getExecutionTime,
-							Comparator.reverseOrder()));
+					Comparator.comparing(ProcessData::getPriority).thenComparing(ProcessData::getWaitingTime));
 			afterList.addAll(copyList);
 			while (!afterList.isEmpty()) {
 				tempData = new ProcessData(afterList.poll());
@@ -153,9 +152,9 @@ public class Function {
 			if (copyList.isEmpty())
 				break;
 			if (i == 0)
-				tempData = new ProcessData(relocationRR(firstCome));
+				tempData = new ProcessData(relocation(firstCome));
 			else
-				tempData = new ProcessData(relocationRR(copyList.poll()));
+				tempData = new ProcessData(relocation(copyList.poll()));
 			calculateTime(tempData);
 			timeLine.add(tempData);
 		}
@@ -170,9 +169,9 @@ public class Function {
 			if (copyList.isEmpty())
 				break;
 			if (i == 0)
-				tempData = new ProcessData(relocationSRT(firstCome));
+				tempData = new ProcessData(relocation(firstCome));
 			else
-				tempData = new ProcessData(relocationSRT(copyList.poll()));
+				tempData = new ProcessData(relocation(copyList.poll()));
 			calculateTime(tempData);
 			timeLine.add(tempData);
 		}
@@ -180,27 +179,13 @@ public class Function {
 		averageResult();
 	}
 
-	private ProcessData relocationRR(ProcessData data) {
+	private ProcessData relocation(ProcessData data) {
 		ProcessData temp = new ProcessData(data);
 
 		if (data.getExecutionTime() > 10) {
 			data.setExecutionTime(data.getExecutionTime() - 10);
 			temp.setExecutionTime(10);
 			copyList.add(data);
-		}
-
-		return temp;
-	}
-
-	private ProcessData relocationSRT(ProcessData data) {
-		ProcessData temp = new ProcessData(data);
-
-		if(!copyList.isEmpty()){
-			if (data.getExecutionTime() > 10 && copyList.peek().getExecutionTime()<data.getExecutionTime()-10) {
-				data.setExecutionTime(data.getExecutionTime() - 10);
-				temp.setExecutionTime(10);
-				copyList.add(data);
-			}
 		}
 
 		return temp;
@@ -224,6 +209,10 @@ public class Function {
 
 		data.setExecutionTime(data.getExecutionTime() + data.getArrivalTime() - copyList.peek().getArrivalTime());
 		temp.setExecutionTime(temp.getExecutionTime() - data.getExecutionTime());
+		if (data.getReactionPoint() > temp.getExecutionTime())
+			data.setReactionPoint(data.getReactionPoint() - temp.getExecutionTime());
+		else if(data.getReactionPoint() == temp.getExecutionTime())
+			data.setReactionPoint(-1);
 		tempList.add(data);
 
 		for (int i = 0; i < tempList.size(); i++)
@@ -244,10 +233,8 @@ public class Function {
 		else
 			tempData.setWaitingTime(currentTime - tempData.getTurnaroundTime());
 
-		if (tempData.getReactionPoint() > tempData.getExecutionTime())
-			tempData.setReactionPoint(tempData.getReactionPoint() - tempData.getExecutionTime());
-		else
-			tempData.setResponseTime(currentTime + tempData.getReactionPoint());
+		if(tempData.getReactionPoint()>=0)
+			tempData.setResponseTime(currentTime + tempData.getReactionPoint() - tempData.getArrivalTime());
 
 		currentTime += tempData.getExecutionTime();
 		tempData.setTurnaroundTime(currentTime);
