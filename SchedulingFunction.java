@@ -282,7 +282,9 @@ public class SchedulingFunction {
 	private void init(Comparator condition) throws CloneNotSupportedException {
 		timeLine = new ArrayList<>();
 		calculatedDataList = new ArrayList<>();
-		calculatedDataList.addAll(dataList);
+		for (ProcessData data : dataList) {
+			calculatedDataList.add(data.clone());
+		}
 		firstCome = calculatedDataList.get(0);
 		calculatedDataList.remove(0);
 
