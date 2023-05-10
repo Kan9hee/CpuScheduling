@@ -133,26 +133,46 @@ class GanttChart extends JPanel{
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         int nextWidth = 35;
+        int processInterval = 200;
+        int dataInterval = 80;
 
         if (sFunction != null && sFunction.timeLine != null){
             for(ProcessData data:sFunction.timeLine){
-                switch(data.getProcessName()){
-                    case"P1":g.setColor(Color.BLUE);
-                            break;
-                    case"P2":g.setColor(Color.GREEN);
-                            break;
-                    case"P3":g.setColor(Color.ORANGE);
-                            break;
-                    case"P4":g.setColor(Color.MAGENTA);
-                            break;
-                    case"P5":g.setColor(Color.RED);
-                            break;
-                }
+                setProcessColor(g,data);
                 g.fillRect(nextWidth, 50, data.getExecutionTime()*9, 20);
                 nextWidth+=data.getExecutionTime()*9;
                 g.setColor(Color.BLACK);
                 g.drawString(Integer.toString(data.getTurnaroundTime()), nextWidth-5, 80);
             }
+
+            for(ProcessData data:sFunction.calculatedDataList){
+                setProcessColor(g,data);
+                g.drawString(data.getProcessName(),processInterval,dataInterval+=40);
+                g.drawString(Integer.toString(data.getWaitingTime()),processInterval,dataInterval+=40);
+                g.drawString(Integer.toString(data.getResponseTime()),processInterval,dataInterval+=40);
+                g.drawString(Integer.toString(data.getTurnaroundTime()),processInterval,dataInterval+=40);
+                dataInterval=80;
+                processInterval+=35;
+            }
+
+            g.setColor(Color.BLACK);
+            g.drawString("AWT: " + Double.toString(sFunction.awt),200,dataInterval+=100);
+            g.drawString("ART: " + Double.toString(sFunction.art),200,dataInterval+=40);
+            g.drawString("ATT: " + Double.toString(sFunction.att),200,dataInterval+=40);
+        }
+    }
+    private void setProcessColor(Graphics g, ProcessData data){
+        switch(data.getProcessName()){
+            case"P1":g.setColor(Color.BLUE);
+                    break;
+            case"P2":g.setColor(Color.decode("#3CB371"));
+                    break;
+            case"P3":g.setColor(Color.ORANGE);
+                    break;
+            case"P4":g.setColor(Color.MAGENTA);
+                    break;
+            case"P5":g.setColor(Color.RED);
+                    break;
         }
     }
 }

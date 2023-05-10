@@ -4,13 +4,14 @@ import java.util.*;
 public class SchedulingFunction {
 
 	public List<ProcessData> timeLine;
+	public List<ProcessData> calculatedDataList;
+	public double awt, art, att;
 
 	private Queue<ProcessData> dataList = new PriorityQueue<>(Comparator.comparing(ProcessData::getArrivalTime));
 	private Queue<ProcessData> copyList;
-	private List<ProcessData> calculatedDataList;
 	private ProcessData firstCome, tempData;
 	private int currentTime = 0, waitingSum = 0, responseSum = 0, turnaroundSum = 0;
-	private double awt, art, att, highPriority;
+	private double highPriority;
 
 	public SchedulingFunction() {
 		File processList = new File("dataSet.txt");
@@ -264,18 +265,6 @@ public class SchedulingFunction {
 		awt = waitingSum / (double) dataList.size();
 		art = responseSum / (double) dataList.size();
 		att = turnaroundSum / (double) dataList.size();
-
-		for (ProcessData obj : calculatedDataList)
-			System.out.println(obj.getProcessName()+" waiting time: "+obj.getWaitingTime());
-		System.out.println("AWT: " + awt);
-
-		for (ProcessData obj : calculatedDataList)
-			System.out.println(obj.getProcessName()+" response time: "+obj.getResponseTime());
-		System.out.println("ART: " + art);
-		
-		for (ProcessData obj : calculatedDataList)
-			System.out.println(obj.getProcessName()+" turnaround time: "+obj.getTurnaroundTime());
-		System.out.println("ATT: " + att);
 	}
 
 	private void init(Comparator condition) throws CloneNotSupportedException {
