@@ -122,7 +122,7 @@ public class SchedulingFunction {
 			else
 				tempData = new ProcessData(relocationAccordingPriority(copyList.poll()));
 			calculateTime(tempData);
-			timeLine.add(tempData);
+			timeLine.add(tempData.clone());
 			if (tempData.getPriority() == highPriority)
 				break;
 		}
@@ -138,10 +138,9 @@ public class SchedulingFunction {
 				else
 					tempData.setTurnaroundTime(+tempData.getTurnaroundTime()+1);
 				calculateTime(tempData);
-				timeLine.add(tempData);
+				timeLine.add(tempData.clone());
 			}
 		}
-
 		averageResult();
 	}
 
@@ -283,10 +282,11 @@ public class SchedulingFunction {
 		timeLine = new ArrayList<>();
 		calculatedDataList = new ArrayList<>();
 		for (ProcessData data : dataList) {
-			calculatedDataList.add(data.clone());
+			if(data.getProcessName().equals(dataList.peek().getProcessName()))
+				firstCome=new ProcessData(data.clone());
+			else
+				calculatedDataList.add(data.clone());
 		}
-		firstCome = calculatedDataList.get(0);
-		calculatedDataList.remove(0);
 
 		if (condition != null)
 			copyList = new PriorityQueue<>(condition);
