@@ -10,7 +10,7 @@ public class View {
 
     public View(){
         Dimension dim=new Dimension(650, 400);
-        JFrame frame=new JFrame("Test");
+        JFrame frame=new JFrame("스케줄링 시뮬레이터");
         SchedulingFunction sFunction=new SchedulingFunction();
         GanttChart ganttChart=new GanttChart(sFunction);
         OrderPanel orderPanel=new OrderPanel(ganttChart,sFunction);
@@ -126,10 +126,13 @@ class OrderPanel extends JPanel{
 }
 
 class GanttChart extends JPanel{
-    SchedulingFunction sFunction;
+
+    private SchedulingFunction sFunction;
+
     public GanttChart(SchedulingFunction sFunction){
         this.sFunction=sFunction;
     }
+
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         int nextWidth = 35;
@@ -137,12 +140,13 @@ class GanttChart extends JPanel{
         int dataInterval = 80;
 
         if (sFunction != null && sFunction.timeLine != null){
+            g.drawString("0",nextWidth,80);
             for(ProcessData data:sFunction.timeLine){
                 setProcessColor(g,data);
                 g.fillRect(nextWidth, 50, data.getExecutionTime()*9, 20);
                 nextWidth+=data.getExecutionTime()*9;
                 g.setColor(Color.BLACK);
-                g.drawString(Integer.toString(data.getTurnaroundTime()), nextWidth-5, 80);
+                g.drawString(Integer.toString(data.getThatTime()), nextWidth-5, 80);
             }
 
             for(ProcessData data:sFunction.calculatedDataList){
@@ -156,9 +160,9 @@ class GanttChart extends JPanel{
             }
 
             g.setColor(Color.BLACK);
-            g.drawString("AWT: " + Double.toString(sFunction.awt),200,dataInterval+=100);
-            g.drawString("ART: " + Double.toString(sFunction.art),200,dataInterval+=40);
-            g.drawString("ATT: " + Double.toString(sFunction.att),200,dataInterval+=40);
+            g.drawString("AWT: " + String.format("%.6f",sFunction.awt),200,dataInterval+=100);
+            g.drawString("ART: " + String.format("%.6f",sFunction.art),200,dataInterval+=40);
+            g.drawString("ATT: " + String.format("%.6f",sFunction.att),200,dataInterval+=40);
         }
     }
     private void setProcessColor(Graphics g, ProcessData data){

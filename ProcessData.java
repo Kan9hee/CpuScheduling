@@ -8,6 +8,7 @@ public class ProcessData implements Cloneable {
     private int waitingTime;
     private int responseTime;
     private int turnaroundTime;
+    private int thatTime;
 
     public ProcessData(String[] list) {
         this.processName = list[0];
@@ -18,6 +19,7 @@ public class ProcessData implements Cloneable {
         this.waitingTime = 0;
         this.responseTime = 0;
         this.turnaroundTime = 0;
+        this.thatTime = 0;
     }
 
     public ProcessData(ProcessData data) {
@@ -29,6 +31,7 @@ public class ProcessData implements Cloneable {
         this.waitingTime = data.waitingTime;
         this.responseTime = data.responseTime;
         this.turnaroundTime = data.turnaroundTime;
+        this.thatTime = 0;
     }
 
     public String getProcessName() {
@@ -85,6 +88,14 @@ public class ProcessData implements Cloneable {
 
     public int getTurnaroundTime() {
         return this.turnaroundTime;
+    }
+
+    public void setThatTime(int value) {
+        this.thatTime = value;
+    }
+
+    public int getThatTime() {
+        return this.thatTime;
     }
 
     @Override

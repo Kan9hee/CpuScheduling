@@ -81,8 +81,7 @@ public class SchedulingFunction {
 				List<ProcessData> local = new ArrayList<>();
 				for (int t = 0; t < loop - i; t++) {
 					tempData = new ProcessData(copyList.poll());
-					tempData.setWaitingTime(currentTime - tempData.getArrivalTime());
-					HRNPriority = (tempData.getWaitingTime() + tempData.getExecutionTime())
+					HRNPriority = (double)(currentTime-tempData.getArrivalTime() + tempData.getExecutionTime())
 							/ (double) tempData.getExecutionTime();
 					tempData.setPriority(HRNPriority);
 					local.add(tempData);
@@ -96,7 +95,7 @@ public class SchedulingFunction {
 	}
 
 	public void NonPreemptivePriority() throws CloneNotSupportedException {
-		init(Comparator.comparing(ProcessData::getPriority).thenComparing(ProcessData::getExecutionTime));
+		init(Comparator.comparing(ProcessData::getPriority).thenComparing(ProcessData::getArrivalTime));
 		int loop = copyList.size();
 
 		for (int i = 0; i <= loop; i++) {
@@ -184,6 +183,7 @@ public class SchedulingFunction {
 
 		if (data.getExecutionTime() > 10) {
 			data.setExecutionTime(data.getExecutionTime() - 10);
+			data.setReactionPoint(0);
 			temp.setExecutionTime(10);
 			copyList.add(data);
 		}
@@ -222,35 +222,38 @@ public class SchedulingFunction {
 		return temp;
 	}
 
-	private void calculateTime(ProcessData tempData) {
+	private void calculateTime(ProcessData data) {
 		boolean foundName = false;
 
-		if (tempData.getArrivalTime() > currentTime)
-			currentTime = tempData.getArrivalTime();
+		if (data.getArrivalTime() > currentTime)
+			currentTime = data.getArrivalTime();
 		
-		if(tempData.getWaitingTime()==0)
-			tempData.setWaitingTime(currentTime - tempData.getArrivalTime());
+		if(data.getWaitingTime()==0)
+			data.setWaitingTime(currentTime - data.getArrivalTime());
 		else
-			tempData.setWaitingTime(currentTime - tempData.getTurnaroundTime());
+			data.setWaitingTime(currentTime - data.getTurnaroundTime());
 
-		if(tempData.getReactionPoint()>=0)
-			tempData.setResponseTime(currentTime + tempData.getReactionPoint() - tempData.getArrivalTime());
-
-		currentTime += tempData.getExecutionTime();
-		tempData.setTurnaroundTime(currentTime);
+		if(data.getReactionPoint()>0)
+			data.setResponseTime(currentTime + data.getReactionPoint() - data.getArrivalTime());
+		
+		data.setReactionPoint(0);
+			
+		currentTime += data.getExecutionTime();
+		data.setThatTime(currentTime);
+		data.setTurnaroundTime(data.getWaitingTime()+data.getExecutionTime());
 
 		for (ProcessData obj : calculatedDataList) {
-			if (obj.getProcessName().equals(tempData.getProcessName())) {
+			if (obj.getProcessName().equals(data.getProcessName())) {
 				foundName = true;
-				obj.setWaitingTime(obj.getWaitingTime()+tempData.getWaitingTime());
-				obj.setResponseTime(tempData.getResponseTime());
-				obj.setTurnaroundTime(tempData.getTurnaroundTime());
+				obj.setWaitingTime(obj.getWaitingTime()+data.getWaitingTime());
+				obj.setResponseTime(data.getResponseTime());
+				obj.setTurnaroundTime(data.getTurnaroundTime());
 				break;
 			}
 		}
 
 		if (!foundName)
-			calculatedDataList.add(tempData);
+			calculatedDataList.add(data);
 	}
 
 	private void averageResult() {
